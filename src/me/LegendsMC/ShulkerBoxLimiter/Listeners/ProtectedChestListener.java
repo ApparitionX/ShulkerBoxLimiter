@@ -1,5 +1,7 @@
 package me.LegendsMC.ShulkerBoxLimiter.Listeners;
 
+import java.util.Collection;
+
 import org.bukkit.ChatColor;
 import org.bukkit.Material;
 import org.bukkit.entity.Player;
@@ -16,6 +18,7 @@ import org.bukkit.inventory.meta.BlockStateMeta;
 
 import com.griefcraft.lwc.LWC;
 import com.griefcraft.model.Protection;
+import com.griefcraft.scripting.event.LWCProtectionRegisterEvent;
 
 import org.bukkit.block.Block;
 import org.bukkit.block.ShulkerBox;
@@ -56,7 +59,7 @@ public class ProtectedChestListener implements Listener {
 	        	    			player.sendMessage(ChatColor.DARK_GREEN
 	        	    					+ "[ShulkerBoxLimiter]: "
 	        	    					+ ChatColor.WHITE
-	        	    					+ "You can´t move ShulkerBox to a LWC protected Chest!");
+	        	    					+ "You can't move ShulkerBox to a LWC protected Chest!");
                         	}
                         }
 	                }
@@ -64,4 +67,26 @@ public class ProtectedChestListener implements Listener {
 	        }
         }
     }
+	
+	@EventHandler
+    public void onRegister(LWCProtectionRegisterEvent event) {
+		Block b = event.getBlock();
+        if(!b.isEmpty())
+        {
+        	Collection<ItemStack> drops = b.getDrops();
+        	for (ItemStack stack : drops)
+        	{
+        		BlockStateMeta itemmeta = (BlockStateMeta)stack.getItemMeta();
+            	if(itemmeta instanceof BlockStateMeta){
+            		if(itemmeta.getBlockState() instanceof ShulkerBox){
+            			event.setCancelled(true);
+            			event.getPlayer().sendMessage(ChatColor.DARK_GREEN
+    	    					+ "[ShulkerBoxLimiter]: "
+    	    					+ ChatColor.WHITE
+    	    					+ "You can't lock a container with a Shulker box!");
+            		}
+            	}
+        	}
+        }
+	}
 }
